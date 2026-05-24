@@ -439,8 +439,13 @@ function emoteVisual(type) {
 }
 
 function EmoteOverlay({ emotes }) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setTick((n) => n + 1), 250);
+    return () => clearInterval(id);
+  }, []);
   const now = Date.now();
-  const live = emotes.filter((e) => now - e.ts < 4800);
+  const live = emotes.filter((e) => now - e.ts < 9000);
 
   return (
     <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden', zIndex: 5 }}>
