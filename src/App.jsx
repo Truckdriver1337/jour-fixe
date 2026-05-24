@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { QRCodeSVG } from 'qrcode.react';
 
 /* ---------- BACKEND CONFIG ---------- */
 // In dev: empty string, Vite proxy handles /api → localhost:3001
@@ -281,8 +282,8 @@ function Landing({ onCreate, onJoin, loading, error, backendStatus }) {
 
 /* ---------- JOIN FORM ---------- */
 
-function JoinForm({ onJoin, onBack, loading, error }) {
-  const [code, setCode] = useState('');
+function JoinForm({ onJoin, onBack, loading, error, initialCode = '' }) {
+  const [code, setCode] = useState(initialCode);
   const [name, setName] = useState('');
   const submit = () => onJoin(code, name);
 
@@ -707,6 +708,15 @@ function HostView({ code, userId, onLeave }) {
           }} title="click to copy">
             {copied ? '✓ copied' : code}
           </button>
+          <div style={{ padding: 6, background: '#fff', borderRadius: 4, lineHeight: 0 }} title="scan to join">
+            <QRCodeSVG
+              value={`${window.location.origin}${window.location.pathname}?join=${code}`}
+              size={Math.round(Math.min(window.innerWidth * 0.045, 72))}
+              bgColor="#ffffff"
+              fgColor="#1a0e0a"
+              level="M"
+            />
+          </div>
         </div>
 
         <div className="fm" style={{ fontSize: 'clamp(11px, 0.95vw, 14px)', letterSpacing: '0.15em', color: C.textDim, textTransform: 'uppercase' }}>
@@ -1166,7 +1176,8 @@ function GuestView({ code, userId, userName, onLeave }) {
 /* ---------- APP ---------- */
 
 export default function App() {
-  const [screen, setScreen] = useState('landing');
+  const [initialJoinCode] = useState(() => new URLSearchParams(window.location.search).get('join') || '');
+  const [screen, setScreen] = useState(() => new URLSearchParams(window.location.search).get('join') ? 'joinForm' : 'landing');
   const [sessionCode, setSessionCode] = useState('');
   const [userName, setUserName] = useState('');
   const [userId] = useState(() => generateId());
@@ -1247,7 +1258,7 @@ export default function App() {
         )}
         {screen === 'joinForm' && (
           <JoinForm onJoin={joinSession} onBack={() => { setError(''); setScreen('landing'); }}
-            loading={loading} error={error} />
+            loading={loading} error={error} initialCode={initialJoinCode} />
         )}
         {screen === 'host' && <HostView code={sessionCode} userId={userId} onLeave={leave} />}
         {screen === 'guest' && <GuestView code={sessionCode} userId={userId} userName={userName} onLeave={leave} />}
