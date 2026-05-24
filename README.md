@@ -42,7 +42,7 @@ jour-fixe/
    git add .
    git commit -m "initial commit"
    git branch -M main
-   git remote add origin https://github.com/YOUR_USERNAME/jour-fixe.git
+   git remote add origin https://github.com/Truckdriver1337/jour-fixe.git
    git push -u origin main
    ```
 
@@ -95,7 +95,7 @@ jour-fixe/
 ## Part 4 — Turn on GitHub Pages
 
 1. In your repo → **Settings** → **Pages**.
-
+poop
 2. Under **Build and deployment**, set **Source** to **GitHub Actions** (not "Deploy from a branch").
 
 3. Go to **Actions** tab. The deploy workflow should already be running from your initial push. If not, push any small change to trigger it (or click "Run workflow" manually).
