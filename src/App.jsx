@@ -627,7 +627,7 @@ function HostView({ code, userId, onLeave }) {
       if (active && s) setSession(s);
     };
     fetch();
-    const id = setInterval(fetch, 2000);
+    const id = setInterval(fetch, 1000);
     return () => { active = false; clearInterval(id); };
   }, [code]);
 
@@ -929,6 +929,7 @@ function GuestView({ code, userId, userName, onLeave }) {
   const [addError, setAddError] = useState('');
   const [justAdded, setJustAdded] = useState(false);
   const [emoteCooldown, setEmoteCooldown] = useState(false);
+  const [localEmotes, setLocalEmotes] = useState([]);
   const hadSessionRef = useRef(false);
 
   useEffect(() => {
@@ -990,9 +991,11 @@ function GuestView({ code, userId, userName, onLeave }) {
     if (!session?.currentVideoId || emoteCooldown) return;
     setEmoteCooldown(true);
     setTimeout(() => setEmoteCooldown(false), 600);
+    const emote = { id: generateId(), userId, type, ts: Date.now() };
+    setLocalEmotes((prev) => [...prev, emote]);
+    setTimeout(() => setLocalEmotes((prev) => prev.filter((e) => e.id !== emote.id)), 5000);
     await update((s) => {
       if (!s.currentVideoId) return s;
-      const emote = { id: generateId(), userId, type, ts: Date.now() };
       return { ...s, emotes: [...(s.emotes || []), emote] };
     });
   };
@@ -1165,6 +1168,11 @@ function GuestView({ code, userId, userName, onLeave }) {
             );
           })
         )}
+      </div>
+
+      {/* LOCAL EMOTE FEEDBACK — floats up from the dock on the guest's screen */}
+      <div style={{ position: 'fixed', bottom: 120, left: 0, right: 0, pointerEvents: 'none', zIndex: 50, overflow: 'hidden', height: 300 }}>
+        <EmoteOverlay emotes={localEmotes} />
       </div>
 
       {/* STICKY EMOTE DOCK */}
